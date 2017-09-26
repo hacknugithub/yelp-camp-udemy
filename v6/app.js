@@ -13,8 +13,8 @@ var express    = require("express"),
 
 mongoose.connect("mongodb://localhost/yelp_camp_v6");
 app.use(bodyParser.urlencoded({extended:true}));
-app.use(express.static(__dirname + "/public"));
 app.set("view engine", "ejs");
+app.use(express.static(__dirname + "/public"));
 seedDB();
 
 //Passport config
@@ -24,18 +24,25 @@ app.use(require("express-session")({
     saveUninitialized: false
 }));
 
+
 app.use(passport.initialize());
 app.use(passport.session());
 passport.use(new LocalStrategy(User.authenticate()));
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
+app.use(function(req, res, next){
+   res.locals.currentUser = req.user;
+   next();
+});
+ 
 app.get("/", function(req, res){
     res.render("landing"); 
 });
 
 //INDEX ROUTE
 app.get("/campgrounds", function(req, res){
+    console.log(req.user);
     //GET ALL CAMPGROUNDS FROM DB
     Campground.find({}, function(err, allCampgrounds){
         if(err){
@@ -107,11 +114,11 @@ app.post("/campgrounds/:id/comments", isLoggedIn, function(req, res){
                 } else{
                     campground.comments.push(comment);
                     campground.save();
-                    res.redirect("/campgrounds/"+campground._id);
+                    res.redirect("/campgrounds/" + campground._id);
                 }
             });
         }
-    })
+    });
 });
 
 //===============================================================================
@@ -148,8 +155,7 @@ app.post("/login", passport.authenticate("local",
         successRedirect: "/campgrounds",
         failureRedirect: "/login"
     }), function(req, res){
-        
-    });
+});
     
 //LOG OUT ROUTE
 app.get("/logout", function(req, res) {
