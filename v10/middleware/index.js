@@ -16,7 +16,11 @@ middlewareObj.checkCampgroundOwnership = function(req, res, next) {
                 //using built in comparing method from mongoose equals()
                 if(foundCampground.author.id.equals(req.user._id)){
                     next();
-                } else{
+                } else {
+                    if(!foundCampground){
+                        req.flash("error", "Campground not found");
+                        res.redirect("back");
+                    }
                     req.flash("error", "You don't have permission to do that.");
                     res.redirect("back");
                 }
@@ -35,9 +39,13 @@ middlewareObj.checkCommentOwnership = function(req, res, next) {
             if(err || !foundComment){
                 req.flash("error", "Comment not found.");
                 console.log(err);
-                req.flash("error", "Something went wrong.");
+                
                 res.redirect("back");
             } else {
+                if(!foundComment){
+                    req.flash("error", "Something went wrong.");
+                    req.redirect("back");
+                }
                 //does user own comment?
                 //using built in comparing method from mongoose equals()
                 if(foundComment.author.id.equals(req.user._id)){
