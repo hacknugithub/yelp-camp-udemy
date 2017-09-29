@@ -9,7 +9,7 @@ router.get("/", function(req, res){
 });
 //SHOW REGISTER FORM
 router.get("/register", function(req, res) {
-   res.render("register"); 
+   res.render("register",{page: "register"}); 
 });
 // HANDLE SIGN UP LOGIC
 router.post("/register", function(req, res) {
@@ -32,7 +32,7 @@ router.post("/register", function(req, res) {
 
 //SHOW LOGIN FORM
 router.get("/login", function(req, res) {
-    res.render("login");
+    res.render("login", {page: "login"});
 });
 //LOGIN LOGIC
 router.post("/login", passport.authenticate("local",
